@@ -1,9 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from .forms import DriverForm, DriverLicenseUpdateForm
 from .models import Driver, Car, Manufacturer
 
 
@@ -61,6 +63,23 @@ class CarListView(LoginRequiredMixin, generic.ListView):
 class CarDetailView(LoginRequiredMixin, generic.DetailView):
     model = Car
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user.is_authenticated:
+            car = self.get_object()
+            drivers = car.drivers.all()
+            for driver in drivers:
+                if driver.id == self.request.user.id:
+                    context["user_is_owner"] = True
+                else:
+                    context["user_is_owner"] = False
+            context["user_is_owner"] = any(
+                [True if driver.id == self.request.user.id else False
+                 for driver in drivers]
+            )
+        return context
+
 
 class CarCreateView(LoginRequiredMixin, generic.CreateView):
     model = Car
@@ -72,6 +91,35 @@ class CarUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Car
     fields = "__all__"
     success_url = reverse_lazy("taxi:car-list")
+
+
+@login_required
+def update_drivers_in_car(
+        request: HttpRequest,
+        pk: int
+) -> HttpResponse:
+    if request.user.is_authenticated:
+        car = Car.objects.get(id=pk)
+        if request.user in car.drivers.all():
+            car.drivers.remove(request.user)
+        else:
+            car.drivers.add(request.user)
+    return redirect("taxi:car-detail", pk=car.pk)
+
+
+    # if self.request.user.is_authenticated:
+    #     car = self.get_object()
+    #     drivers = car.drivers.all()
+    #     for driver in drivers:
+    #         if driver.id == self.request.user.id:
+    #             context["user_is_owner"] = True
+    #         else:
+    #             context["user_is_owner"] = False
+    #     context["user_is_owner"] = any(
+    #         [True if driver.id == self.request.user.id else False
+    #          for driver in drivers]
+    #     )
+    # return context
 
 
 class CarDeleteView(LoginRequiredMixin, generic.DeleteView):
@@ -87,3 +135,28 @@ class DriverListView(LoginRequiredMixin, generic.ListView):
 class DriverDetailView(LoginRequiredMixin, generic.DetailView):
     model = Driver
     queryset = Driver.objects.all().prefetch_related("cars__manufacturer")
+
+
+class DriverCreateView(LoginRequiredMixin, generic.CreateView):
+    model = Driver
+    form_class = DriverForm
+
+    def get_success_url(self):
+        return reverse_lazy("taxi:driver-detail", kwargs={"pk": self.object.id})
+
+
+class DriverDeleteView(LoginRequiredMixin, generic.DeleteView):
+    model = Driver
+    success_url = reverse_lazy("taxi:driver-list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        referer_url = self.request.META.get("HTTP_REFERER", "/")
+        context["previous"] = referer_url
+        return context
+
+
+class DriverLicenseUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Driver
+    form_class = DriverLicenseUpdateForm
+    template_name = "taxi/license_form.html"
