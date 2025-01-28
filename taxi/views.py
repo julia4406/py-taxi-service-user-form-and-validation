@@ -95,7 +95,7 @@ class CarUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 
 @login_required
-def update_drivers_in_car(
+def update_drivers_in_car_view(
         request: HttpRequest,
         pk: int
 ) -> HttpResponse:
