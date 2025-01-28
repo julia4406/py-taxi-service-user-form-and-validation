@@ -13,6 +13,7 @@ class CarForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+
     class Meta:
         model = Car
         fields = "__all__"
@@ -29,6 +30,7 @@ class DriverForm(UserCreationForm):
             )
         ]
     )
+
     class Meta(UserCreationForm.Meta):
         model = Driver
         fields = UserCreationForm.Meta.fields + (
@@ -45,12 +47,16 @@ class DriverLicenseUpdateForm(forms.ModelForm):
         license_number = self.cleaned_data["license_number"]
 
         if len(license_number) != 8:
-            raise ValidationError(f"License_number is 8 symbols only! Not {len(license_number)}!")
+            raise ValidationError(f"License_number is 8 "
+                                  f"symbols only! Not {len(license_number)}!")
 
-        elif not license_number[:3].isalpha() or license_number[:3] != license_number[:3].upper():
-            raise ValidationError("Ensure that your license_number has 3 first symbols uppercase!")
+        elif (not license_number[:3].isalpha()
+              or license_number[:3] != license_number[:3].upper()):
+            raise ValidationError("Ensure that your license_number "
+                                  "has 3 first symbols uppercase!")
 
         elif not license_number[3:].isdigit():
-            raise ValidationError("Ensure that your license_number has 3 letters and 5 digits after!")
+            raise ValidationError("Ensure that your license_number "
+                                  "has 3 letters and 5 digits after!")
 
         return license_number

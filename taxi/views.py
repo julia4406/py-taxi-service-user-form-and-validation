@@ -100,10 +100,7 @@ def update_drivers_in_car(
         pk: int
 ) -> HttpResponse:
     if request.user.is_authenticated:
-        try:
-            car = Car.objects.get(id=pk)
-        except:
-            return redirect("taxi:car-list")
+        car = Car.objects.get(id=pk)
         if request.user in car.drivers.all():
             car.drivers.remove(request.user)
         else:
