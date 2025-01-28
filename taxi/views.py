@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -99,12 +99,12 @@ def update_drivers_in_car(
         request: HttpRequest,
         pk: int
 ) -> HttpResponse:
-    if request.user.is_authenticated:
-        car = Car.objects.get(id=pk)
-        if request.user in car.drivers.all():
-            car.drivers.remove(request.user)
-        else:
-            car.drivers.add(request.user)
+    #car = Car.objects.get(id=pk)
+    car = get_object_or_404(Car, pk=pk)
+    if request.user in car.drivers.all():
+        car.drivers.remove(request.user)
+    else:
+        car.drivers.add(request.user)
     return redirect("taxi:car-detail", pk=car.pk)
 
 
@@ -149,3 +149,4 @@ class DriverLicenseUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Driver
     form_class = DriverLicenseUpdateForm
     template_name = "taxi/license_form.html"
+    success_url = reverse_lazy("taxi:driver-list")
