@@ -8,7 +8,7 @@
     <h1>Drivers</h1>
 
     {% if user.is_authenticated %}
-    <form action="{% url 'taxi:driver-update' pk=car.id %}" method="post">
+    <form action="{% url 'taxi:assign-driver' pk=car.id %}" method="post">
       {% csrf_token %}
 
       {% if not user_is_owner %}

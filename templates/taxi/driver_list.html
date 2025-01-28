@@ -31,7 +31,7 @@
         <td>{{ driver.last_name }}</td>
         <td>{{ driver.license_number }}</td>
         <td>
-          <a href="{% url 'taxi:license-update' pk=driver.id %}">
+          <a href="{% url 'taxi:driver-update' pk=driver.id %}">
             Update License
           </a>
         </td>

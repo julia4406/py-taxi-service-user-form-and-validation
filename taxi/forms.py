@@ -50,12 +50,12 @@ class DriverLicenseUpdateForm(forms.ModelForm):
             raise ValidationError(f"License_number is 8 "
                                   f"symbols only! Not {len(license_number)}!")
 
-        elif (not license_number[:3].isalpha()
+        if (not license_number[:3].isalpha()
               or license_number[:3] != license_number[:3].upper()):
             raise ValidationError("Ensure that your license_number "
                                   "has 3 first symbols uppercase!")
 
-        elif not license_number[3:].isdigit():
+        if not license_number[3:].isdigit():
             raise ValidationError("Ensure that your license_number "
                                   "has 3 letters and 5 digits after!")
 
