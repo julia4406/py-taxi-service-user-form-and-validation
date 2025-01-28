@@ -70,11 +70,7 @@ class CarDetailView(LoginRequiredMixin, generic.DetailView):
         if self.request.user.is_authenticated:
             car = self.get_object()
             drivers = car.drivers.all()
-            for driver in drivers:
-                if driver.id == self.request.user.id:
-                    context["user_is_owner"] = True
-                else:
-                    context["user_is_owner"] = False
+
             context["user_is_owner"] = any(
                 [True if driver.id == self.request.user.id else False
                  for driver in drivers]
@@ -136,12 +132,6 @@ class DriverCreateView(LoginRequiredMixin, generic.CreateView):
 class DriverDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Driver
     success_url = reverse_lazy("taxi:driver-list")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        referer_url = self.request.META.get("HTTP_REFERER", "/")
-        context["previous"] = referer_url
-        return context
 
 
 class DriverLicenseUpdateView(LoginRequiredMixin, generic.UpdateView):
