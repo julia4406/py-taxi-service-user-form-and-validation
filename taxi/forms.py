@@ -51,7 +51,7 @@ class DriverLicenseUpdateForm(forms.ModelForm):
                                   f"symbols only! Not {len(license_number)}!")
 
         if (not license_number[:3].isalpha()
-              or license_number[:3] != license_number[:3].upper()):
+                or license_number[:3] != license_number[:3].upper()):
             raise ValidationError("Ensure that your license_number "
                                   "has 3 first symbols uppercase!")
 
