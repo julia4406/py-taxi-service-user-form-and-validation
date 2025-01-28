@@ -99,7 +99,6 @@ def update_drivers_in_car(
         request: HttpRequest,
         pk: int
 ) -> HttpResponse:
-    #car = Car.objects.get(id=pk)
     car = get_object_or_404(Car, pk=pk)
     if request.user in car.drivers.all():
         car.drivers.remove(request.user)
