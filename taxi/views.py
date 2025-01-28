@@ -1,7 +1,8 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -99,27 +100,15 @@ def update_drivers_in_car(
         pk: int
 ) -> HttpResponse:
     if request.user.is_authenticated:
-        car = Car.objects.get(id=pk)
+        try:
+            car = Car.objects.get(id=pk)
+        except:
+            return redirect("taxi:car-list")
         if request.user in car.drivers.all():
             car.drivers.remove(request.user)
         else:
             car.drivers.add(request.user)
     return redirect("taxi:car-detail", pk=car.pk)
-
-
-    # if self.request.user.is_authenticated:
-    #     car = self.get_object()
-    #     drivers = car.drivers.all()
-    #     for driver in drivers:
-    #         if driver.id == self.request.user.id:
-    #             context["user_is_owner"] = True
-    #         else:
-    #             context["user_is_owner"] = False
-    #     context["user_is_owner"] = any(
-    #         [True if driver.id == self.request.user.id else False
-    #          for driver in drivers]
-    #     )
-    # return context
 
 
 class CarDeleteView(LoginRequiredMixin, generic.DeleteView):
@@ -142,7 +131,10 @@ class DriverCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = DriverForm
 
     def get_success_url(self):
-        return reverse_lazy("taxi:driver-detail", kwargs={"pk": self.object.id})
+        return reverse_lazy(
+            "taxi:driver-detail",
+            kwargs={"pk": self.object.id}
+        )
 
 
 class DriverDeleteView(LoginRequiredMixin, generic.DeleteView):

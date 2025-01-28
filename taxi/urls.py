@@ -69,7 +69,7 @@ urlpatterns = [
     path(
         "cars/<int:pk>/driver-update/",
         update_drivers_in_car,
-        name="car-driver-update"
+        name="driver-update"
     ),
 ]
 
